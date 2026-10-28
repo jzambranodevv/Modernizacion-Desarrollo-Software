@@ -39,12 +39,22 @@ jobs:
       - name: Ejecutar MSTest V2 y comprobar descubrimiento
         shell: pwsh
         run: |
+          $assembly = & $env:MSBUILD PruebasInventario/PruebasInventario.csproj /p:Configuration=Release /p:Platform=AnyCPU -getProperty:TargetPath /nologo
+          if ($LASTEXITCODE -ne 0) { throw 'No se pudo obtener TargetPath de MSBuild.' }
+          $assembly = ([string]$assembly).Trim()
+          if (!(Test-Path -LiteralPath $assembly -PathType Leaf)) { throw "No existe el ensamblado de pruebas: $assembly" }
           $adapter = Join-Path $pwd 'packages\mstest.testadapter\2.2.10\build\_common'
-          & $env:VSTEST PruebasInventario\bin\Release\PruebasInventario.dll "/TestAdapterPath:$adapter" '/Logger:trx;LogFileName=inventario.trx' /ResultsDirectory:TestResults
+          if (!(Test-Path -LiteralPath (Join-Path $adapter 'Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll') -PathType Leaf)) {
+            throw 'No se encontró el adaptador MSTest V2 2.2.10 restaurado.'
+          }
+          Write-Host "Ensamblado de pruebas: $assembly"
+          Write-Host "Adaptador MSTest: $adapter"
+          & $env:VSTEST $assembly "/TestAdapterPath:$adapter" '/Logger:trx;LogFileName=inventario.trx' /ResultsDirectory:TestResults
           if ($LASTEXITCODE -ne 0) { throw 'Fallaron las pruebas.' }
+          if (!(Test-Path TestResults/inventario.trx -PathType Leaf)) { throw 'VSTest no generó evidencia TRX.' }
           [xml]$trx = Get-Content TestResults/inventario.trx -Raw
           $counters = $trx.TestRun.ResultSummary.Counters
-          if ([int]$counters.executed -le 0 -or [int]$counters.failed -gt 0 -or [int]$counters.passed -ne [int]$counters.total) {
+          if ($null -eq $counters -or [int]$counters.total -le 0 -or [int]$counters.executed -ne [int]$counters.total -or [int]$counters.failed -gt 0 -or [int]$counters.passed -ne [int]$counters.total) {
             throw 'Hay pruebas fallidas, pendientes o no se descubrieron pruebas.'
           }
       - name: Conservar evidencia TRX
