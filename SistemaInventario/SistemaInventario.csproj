@@ -20,6 +20,10 @@
     <Compile Include="Controlador\TLista.cs" />
     <Compile Include="Formularios\frmProductos.cs"><SubType>Form</SubType></Compile>
     <Compile Include="Formularios\frmProductos.Designer.cs"><DependentUpon>frmProductos.cs</DependentUpon></Compile>
+    <Compile Include="Formularios\frmPrincipal.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="Formularios\frmPrincipal.Designer.cs"><DependentUpon>frmPrincipal.cs</DependentUpon></Compile>
+    <Compile Include="Formularios\frmConsultas.cs"><SubType>Form</SubType></Compile>
+    <Compile Include="Formularios\frmConsultas.Designer.cs"><DependentUpon>frmConsultas.cs</DependentUpon></Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

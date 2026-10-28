@@ -7,9 +7,14 @@ namespace SistemaInventario.Formularios
 {
     public partial class frmProductos : Form
     {
-        private readonly TLista lista = new TLista();
+        private readonly TLista lista;
 
         public frmProductos() { InitializeComponent(); }
+
+        public frmProductos(TLista lista) : this()
+        {
+            this.lista = lista ?? throw new ArgumentNullException(nameof(lista));
+        }
 
         private bool Convertir(out decimal precio, out int cantidad, out int minimo)
         {

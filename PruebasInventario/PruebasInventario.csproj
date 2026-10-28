@@ -18,6 +18,7 @@
       <Project>{A0BBAF11-EE33-4444-8888-000000000001}</Project><Name>SistemaInventario</Name>
     </ProjectReference>
     <Compile Include="TListaTests.cs" />
+    <Compile Include="ConsultaTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

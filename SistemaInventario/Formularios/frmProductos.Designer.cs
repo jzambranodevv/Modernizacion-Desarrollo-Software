@@ -44,7 +44,8 @@ namespace SistemaInventario.Formularios
             this.lblTitulo.Size = new Size(650, 50);
             this.lblAyuda.Text = "Registre un producto o indique su código para modificarlo o eliminarlo.";
             this.lblAyuda.Location = new Point(36, 82);
-            this.lblAyuda.Size = new Size(640, 44);            this.lblCodigo.Text = "Código del producto";
+            this.lblAyuda.Size = new Size(640, 44);
+            this.lblCodigo.Text = "Código del producto";
             this.lblCodigo.Location = new Point(36, 144);
             this.lblCodigo.Size = new Size(175, 28);
             this.txtCodigo.Location = new Point(220, 144);
@@ -114,7 +115,7 @@ namespace SistemaInventario.Formularios
             this.lblNota.Location = new Point(36, 614);
             this.lblNota.Size = new Size(624, 42);
             this.lblNota.ForeColor = Color.DimGray;
-            this.lblNota.Text = "Versión 1.0 · Datos temporales: se pierden al cerrar la aplicación.";
+            this.lblNota.Text = "Datos temporales: se pierden al cerrar la aplicación. Cierre esta ventana para volver al menú.";
             this.AutoScaleDimensions = new SizeF(9F, 23F);
             this.AutoScaleMode = AutoScaleMode.Font;
             this.Font = new Font("Segoe UI", 12F);
@@ -122,8 +123,8 @@ namespace SistemaInventario.Formularios
             this.ClientSize = new Size(704, 680);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Text = "Inventario · Versión 1.0";
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.Text = "Gestión de productos · Inventario";
             this.Controls.Add(this.lblTitulo);
             this.Controls.Add(this.lblAyuda);
             this.Controls.Add(this.btnRegistrar);
