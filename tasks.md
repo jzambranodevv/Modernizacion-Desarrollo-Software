@@ -1,6 +1,6 @@
-﻿# Tareas — evolución a v1.1
+﻿# Tareas — evolución a v1.2
 
-**Regla:** conservar v1.0 e incorporar únicamente RF04–RF05 de v1.1 según spec.md. No anticipar v1.2. La implementación de v1.1 está autorizada; no realizar commits, push ni Pull Requests.
+**Autorización vigente:** implementar y verificar v1.2 según T20–T29. T01–T18 conservan su estado histórico. No realizar commits, push ni Pull Requests.
 
 ## Historial de v1.0
 
@@ -31,7 +31,7 @@ Las tareas T01–T09 siguientes describen el alcance y el último estado documen
 T01–T06 completadas. T07 parcial: solución compilada con MSBuild de Visual Studio Insiders y formulario abierto; pruebas interactivas pendientes por fallo del control de ventanas. T08 parcial: workflow configurado, pendiente de ejecución en GitHub Actions. T09 pendiente por instrucción del usuario: sin commits, push, Pull Request ni etiqueta.
 
 Los resultados ejecutados y pendientes se detallan en [VERIFICACION-v1.0.md](VERIFICACION-v1.0.md).
-## Tareas de v1.1
+## Tareas de v1.1 (históricas)
 
 * [x] **T10 — Especificar v1.1:** incorporar RF04–RF05, EF04–EF05 y CA16–CA29; documentar navegación y sesión compartida, y revisar trazabilidad con plan y tareas sin alterar CA01–CA15.
 * [x] **T11 — Establecer la regresión:** ejecutar las pruebas automatizadas existentes de v1.0 y registrar las verificaciones manuales pendientes, sin asumirlas aprobadas.
@@ -46,3 +46,23 @@ Los resultados ejecutados y pendientes se detallan en [VERIFICACION-v1.0.md](VER
 ## Estado de la evolución
 
 T10–T15 completadas. T16 parcial: Debug y Release compilados; verificaciones manuales de Windows Forms y Designer pendientes. T17 parcial: workflow adaptado a feature/version-1.1, con comprobaciones locales; ejecución remota pendiente. T18 parcial: cobertura y pendientes registrados en [VERIFICACION-v1.1.md](VERIFICACION-v1.1.md), sin declarar finalizada la verificación visual. No se realizaron commits, push, Pull Requests ni etiquetas.
+
+## Tareas de v1.2
+
+Las tareas de implementación siguientes quedan pendientes hasta una nueva autorización. Conservar los resultados y pendientes históricos; no reiniciar ni asumir aprobadas las verificaciones de v1.0/v1.1.
+
+* [x] **T19 — Especificar v1.2:** incorporar RF06–RF09, EF06–EF09 y CA30–CA50; registrar evolución explícita de interfaz de CA01–CA29 y comprobar trazabilidad sin reutilizar identificadores.
+* [x] **T20 — Establecer regresión:** ejecutar las pruebas existentes de v1.0/v1.1 (52 pruebas) y repetirlas con la suite ampliada; registrar resultados y separar pasos visuales que siguen vigentes de los evolucionados en spec.md.
+* [x] **T21 — Reorganizar navegación:** adaptar frmPrincipal a «Registrar producto» (editor en ingreso vacío), «Inventario» y resumen; renombrar frmConsultas a frmInventario, conservando tres formularios; mantener la misma TLista en frmInventario y editor. Implementar retorno modal y liberación de formularios, con retorno al formulario de origen y resumen actualizado tras ingreso directo, sin otro inventario (CA49–CA50).
+* [x] **T22 — Implementar modos del editor:** ingreso vacío desde menú o Inventario y actualización precargada por código desde Inventario; Ingresar o Actualizar según el modo, Cancelar en ambos, código inmutable y sin Eliminar en el editor; cierre por éxito y cancelación sin cambios. Conservar ajuste absoluto de cantidad y validaciones (CA30–CA31, CA35–CA36, CA50).
+* [x] **T23 — Administrar desde frmInventario:** añadir Ingresar/Actualizar/Eliminar, selección explícita por código enlazado y confirmación identificada con No predeterminado. Reaplicar búsqueda y limpiar selección tras cada reenlace, sin índices de la lista completa (CA32–CA36, CA48).
+* [x] **T24 — Implementar movimientos:** reglas y actualización atómica en TLista; controles de tipo/unidades/destino en frmInventario, sin historial ni formulario adicional. Validar positivos, existencia, stock suficiente y desbordamiento; refrescar inmediatamente (CA32, CA36–CA41, CA48).
+* [x] **T25 — Implementar alertas y resumen:** calcular umbral inclusivo y totales globales en TLista, unidades en long. Señalar reposición con texto y estilo en frmInventario, cinco columnas intactas; refrescar indicadores al volver al menú (CA42–CA47, CA49–CA50).
+* [x] **T26 — Automatizar regresión y reglas nuevas:** ampliar el proyecto MSTest V2 con variantes independientes de CA30–CA48 aplicables al controlador; ejecutar también las pruebas de v1.0/v1.1. Verificar integridad, destino correcto, límites numéricos y resultados tras cambios; no presentar esto como aprobación de la interfaz.
+* [ ] **T27 — Verificar manualmente:** recorrer CA30–CA50 y la interfaz histórica adaptada: modos, selección filtrada, confirmaciones, botón Cancelar en ambos modos y cierre sin guardar, precarga, código bloqueado, entradas inválidas, refresco con búsqueda, alertas y resumen. Comprobar ambos accesos del menú, ingreso directo, retorno al origen, refresco del resumen y búsqueda conservada al reabrir Inventario, con una TLista, los tres Designer y mensajes; registrar cada variante y evidencia.
+* [x] **T28 — Compilar y preparar CI:** compilar Debug y Release; adaptar GitHub Actions a feature/version-1.2 manteniendo targeting pack, MSTest V2, MSBuild, TargetPath, VSTest y TRX. Asegurar fallo ante errores o cero pruebas; ejecución remota pendiente hasta autorizar publicación.
+* [ ] **T29 — Revisar cobertura y cierre:** registrar cobertura de CA01–CA50, criterios históricos evolucionados y verificaciones ejecutadas/fallidas/pendientes. Corregir defectos sin cambiar contratos para justificarlos. No declarar finalizada v1.2 mientras falten comprobaciones requeridas.
+
+## Estado de v1.2
+
+T19–T26 y T28 completadas. T27 parcial: se comprobó en Windows el ingreso directo y cancelación, precarga de Actualizar con código bloqueado, falta de selección, confirmación de Eliminar con No predeterminado, movimientos con búsqueda activa, umbral inclusivo, resumen actualizado y conservación de una búsqueda al reabrir Inventario; quedan variantes visuales indicadas en el informe. T29 parcial, pendiente de esas comprobaciones manuales y del pipeline remoto. Debug y Release compilaron; las 93 pruebas pasaron en ambas configuraciones. El workflow local también ejecutó y verificó 93/93. Detalle en [VERIFICACION-v1.2.md](VERIFICACION-v1.2.md). Sin commits, push ni Pull Requests.

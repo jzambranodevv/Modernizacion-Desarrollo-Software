@@ -11,6 +11,54 @@ namespace SistemaInventario.Controlador
         // Instantánea de consulta; los productos son inmutables desde fuera del controlador.
         public IReadOnlyList<Producto> Productos { get { return Array.AsReadOnly(productos.ToArray()); } }
 
+        public Producto ObtenerPorCodigo(string codigo)
+        {
+            int indice = Indice(codigo);
+            return indice < 0 ? null : productos[indice];
+        }
+
+        private static bool RequiereReposicion(Producto producto)
+        {
+            return producto.Cantidad <= producto.StockMinimo;
+        }
+
+        public IReadOnlyList<Producto> StockBajo
+        {
+            get { return productos.FindAll(RequiereReposicion).AsReadOnly(); }
+        }
+
+        public void ObtenerResumen(out int diferentes, out long unidades, out int bajos)
+        {
+            diferentes = productos.Count;
+            unidades = 0;
+            bajos = 0;
+            foreach (var producto in productos)
+            {
+                unidades += producto.Cantidad;
+                if (RequiereReposicion(producto)) bajos++;
+            }
+        }
+
+        public bool RegistrarMovimiento(string codigo, string tipo, int unidades, out string mensaje)
+        {
+            int indice = Indice(codigo);
+            if (indice < 0) { mensaje = "El producto no existe."; return false; }
+            if (tipo != "Entrada" && tipo != "Salida")
+            { mensaje = "Seleccione Entrada o Salida."; return false; }
+            if (unidades <= 0) { mensaje = "Las unidades deben ser positivas."; return false; }
+            var producto = productos[indice];
+            if (tipo == "Salida" && unidades > producto.Cantidad)
+            { mensaje = "Stock insuficiente para la salida."; return false; }
+            if (tipo == "Entrada" && unidades > int.MaxValue - producto.Cantidad)
+            { mensaje = "La entrada supera la cantidad máxima permitida."; return false; }
+            int cantidad = tipo == "Entrada" ? producto.Cantidad + unidades : producto.Cantidad - unidades;
+            productos[indice] = new Producto(producto.Codigo, producto.Nombre, producto.Precio,
+                cantidad, producto.StockMinimo);
+            mensaje = string.Format("{0} de {1} unidades registrada para {2} / {3}.",
+                tipo, unidades, producto.Codigo, producto.Nombre);
+            return true;
+        }
+
         public IReadOnlyList<Producto> Buscar(string texto)
         {
             string termino = (texto ?? "").Trim();

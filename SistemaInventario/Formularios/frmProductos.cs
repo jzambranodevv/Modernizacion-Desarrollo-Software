@@ -8,12 +8,36 @@ namespace SistemaInventario.Formularios
     public partial class frmProductos : Form
     {
         private readonly TLista lista;
+        private readonly string codigoOriginal;
+        public string MensajeResultado { get; private set; }
 
+        // Constructor para el diseñador; los accesos de la aplicación inyectan TLista.
         public frmProductos() { InitializeComponent(); }
 
-        public frmProductos(TLista lista) : this()
+        public frmProductos(TLista lista, string codigo = null) : this()
         {
             this.lista = lista ?? throw new ArgumentNullException(nameof(lista));
+            codigoOriginal = codigo;
+            bool actualizar = codigo != null;
+            txtCodigo.ReadOnly = actualizar;
+            btnGuardar.Text = actualizar ? "Actualizar" : "Ingresar";
+            lblTitulo.Text = actualizar ? "Actualizar producto" : "Ingresar producto";
+            lblAyuda.Text = actualizar ? "Actualice los datos. El código identifica al producto y no cambia."
+                : "Complete los datos del nuevo producto.";
+            lblEstado.Text = "";
+            if (!actualizar) return;
+            var producto = lista.ObtenerPorCodigo(codigo);
+            if (producto == null)
+            {
+                Mostrar(false, "El producto no existe.");
+                btnGuardar.Enabled = false;
+                return;
+            }
+            txtCodigo.Text = producto.Codigo;
+            txtNombre.Text = producto.Nombre;
+            txtPrecio.Text = producto.Precio.ToString(CultureInfo.CurrentCulture);
+            txtCantidad.Text = producto.Cantidad.ToString(CultureInfo.InvariantCulture);
+            txtMinimo.Text = producto.StockMinimo.ToString(CultureInfo.InvariantCulture);
         }
 
         private bool Convertir(out decimal precio, out int cantidad, out int minimo)
@@ -44,27 +68,17 @@ namespace SistemaInventario.Formularios
             lblEstado.AccessibleName = mensaje;
         }
 
-        private void Registrar_Click(object sender, EventArgs e)
+        private void Guardar_Click(object sender, EventArgs e)
         {
             decimal precio; int cantidad, minimo; string mensaje;
             if (!Convertir(out precio, out cantidad, out minimo)) return;
-            bool exito = lista.Registrar(txtCodigo.Text, txtNombre.Text, precio, cantidad, minimo, out mensaje);
-            Mostrar(exito, mensaje);
-        }
-
-        private void Modificar_Click(object sender, EventArgs e)
-        {
-            decimal precio; int cantidad, minimo; string mensaje;
-            if (!Convertir(out precio, out cantidad, out minimo)) return;
-            bool exito = lista.Modificar(txtCodigo.Text, txtNombre.Text, precio, cantidad, minimo, out mensaje);
-            Mostrar(exito, mensaje);
-        }
-
-        private void Eliminar_Click(object sender, EventArgs e)
-        {
-            string mensaje;
-            bool exito = lista.Eliminar(txtCodigo.Text, out mensaje);
-            Mostrar(exito, mensaje);
+            bool exito = codigoOriginal == null
+                ? lista.Registrar(txtCodigo.Text, txtNombre.Text, precio, cantidad, minimo, out mensaje)
+                : lista.Modificar(codigoOriginal, txtNombre.Text, precio, cantidad, minimo, out mensaje);
+            if (!exito) { Mostrar(false, mensaje); return; }
+            MensajeResultado = mensaje;
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }

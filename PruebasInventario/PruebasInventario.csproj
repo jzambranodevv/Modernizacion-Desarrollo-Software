@@ -19,6 +19,7 @@
     </ProjectReference>
     <Compile Include="TListaTests.cs" />
     <Compile Include="ConsultaTests.cs" />
+    <Compile Include="InventarioTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
