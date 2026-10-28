@@ -1,7 +1,7 @@
-name: Inventario v1.0
+name: Inventario v1.1
 on:
   push:
-    branches: [feature/version-1.0]
+    branches: [feature/version-1.0, feature/version-1.1]
   pull_request:
   workflow_dispatch:
 

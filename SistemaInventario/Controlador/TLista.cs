@@ -8,8 +8,17 @@ namespace SistemaInventario.Controlador
     {
         private readonly List<Producto> productos = new List<Producto>();
 
-        // Instantánea de solo lectura para comprobar el estado sin permitir mutaciones externas.
-        public IReadOnlyList<Producto> Productos { get { return productos.ToArray(); } }
+        // Instantánea de consulta; los productos son inmutables desde fuera del controlador.
+        public IReadOnlyList<Producto> Productos { get { return Array.AsReadOnly(productos.ToArray()); } }
+
+        public IReadOnlyList<Producto> Buscar(string texto)
+        {
+            string termino = (texto ?? "").Trim();
+            if (termino.Length == 0) return Productos;
+            return productos.FindAll(p =>
+                p.Codigo.IndexOf(termino, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                p.Nombre.IndexOf(termino, StringComparison.OrdinalIgnoreCase) >= 0).AsReadOnly();
+        }
 
         private int Indice(string codigo)
         {
