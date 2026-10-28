@@ -1,0 +1,56 @@
+name: Inventario v1.0
+on:
+  push:
+    branches: [feature/version-1.0]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comprobar targeting pack y localizar herramientas
+        shell: pwsh
+        run: |
+          $reference = "${env:ProgramFiles(x86)}\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\mscorlib.dll"
+          if (!(Test-Path $reference)) {
+            $installer = Join-Path $env:RUNNER_TEMP 'ndp472-devpack.exe'
+            Invoke-WebRequest 'https://go.microsoft.com/fwlink/?linkid=874338' -OutFile $installer
+            $process = Start-Process $installer -ArgumentList '/quiet','/norestart' -Wait -PassThru -WindowStyle Hidden
+            if ($process.ExitCode -notin @(0,3010)) { throw "Developer Pack: $($process.ExitCode)" }
+          }
+          if (!(Test-Path $reference)) { throw 'Falta el targeting pack 4.7.2.' }
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $installation = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
+          $msbuild = Join-Path $installation 'MSBuild\Current\Bin\MSBuild.exe'
+          $vstest = Join-Path $installation 'Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe'
+          if (!(Test-Path $msbuild) -or !(Test-Path $vstest)) { throw 'Faltan MSBuild o VSTest.' }
+          "MSBUILD=$msbuild" >> $env:GITHUB_ENV
+          "VSTEST=$vstest" >> $env:GITHUB_ENV
+      - name: Restaurar y compilar Release
+        shell: pwsh
+        run: |
+          & $env:MSBUILD SistemaInventario.sln /restore /p:Configuration=Release /v:minimal /nologo
+          if ($LASTEXITCODE -ne 0) { throw 'Falló la compilación o restauración.' }
+      - name: Ejecutar MSTest V2 y comprobar descubrimiento
+        shell: pwsh
+        run: |
+          $adapter = Join-Path $pwd 'packages\mstest.testadapter\2.2.10\build\_common'
+          & $env:VSTEST PruebasInventario\bin\Release\PruebasInventario.dll "/TestAdapterPath:$adapter" '/Logger:trx;LogFileName=inventario.trx' /ResultsDirectory:TestResults
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron las pruebas.' }
+          [xml]$trx = Get-Content TestResults/inventario.trx -Raw
+          $counters = $trx.TestRun.ResultSummary.Counters
+          if ([int]$counters.executed -le 0 -or [int]$counters.failed -gt 0 -or [int]$counters.passed -ne [int]$counters.total) {
+            throw 'Hay pruebas fallidas, pendientes o no se descubrieron pruebas.'
+          }
+      - name: Conservar evidencia TRX
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-mstest
+          path: TestResults/*.trx
+          if-no-files-found: warn
