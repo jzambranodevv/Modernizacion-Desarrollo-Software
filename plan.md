@@ -12,9 +12,9 @@
 
 * `SistemaInventario/Entidades/Producto.cs`: código, nombre, precio (`decimal`), cantidad y stock mínimo (`int`).
 * `SistemaInventario/Controlador/TLista.cs`: lista de productos y operaciones de registrar, modificar y eliminar. Centraliza validaciones; indica éxito o fallo y motivo. La interfaz no debe duplicar reglas del negocio.
-* `SistemaInventario/Formularios/frmProductos.cs` y su archivo Designer: formulario para ingresar datos y ejecutar las tres operaciones. Puede tener un selector sencillo de códigos existentes para modificar/eliminar; **no** implementar aún consulta ni búsqueda avanzada.
+* `SistemaInventario/Formularios/frmProductos.cs` y su archivo Designer: formulario para ingresar datos y ejecutar las tres operaciones. Convierte las entradas a `decimal` e `int` según `spec.md` y explica los errores de conversión sin cambiar datos. `TLista` valida las reglas de negocio; el formulario no las duplica. Solo permite seleccionar por código para modificar/eliminar, mediante un selector sencillo de códigos existentes o la entrada del código; no incluye listados generales de productos, filtros ni búsquedas avanzadas.
 * `SistemaInventario/Program.cs` y archivos de proyecto/solución necesarios para abrir y ejecutar en Visual Studio.
-* `PruebasInventario/`: proyecto de pruebas automatizadas compatible con .NET Framework 4.7.2, destinado a verificar las reglas de negocio y los criterios CA01–CA09 sin depender de la interfaz gráfica. Si es necesario, la lógica podrá organizarse en una biblioteca independiente para facilitar las pruebas.
+* `PruebasInventario/`: proyecto de pruebas dirigido a .NET Framework 4.7.2 con MSTest V2, usando `MSTest.TestFramework` y `MSTest.TestAdapter` en la misma versión 2.2.10. Verifica entidad y controlador sin abrir formularios ni añadir clases o bibliotecas innecesarias.
 
 ## Interfaz
 
@@ -27,11 +27,13 @@
 * El código no puede modificarse en v1.0.
 * En un fallo, ninguna operación debe alterar los datos existentes.
 * Datos en memoria: se pierden al cerrar la aplicación; es una limitación declarada del prototipo.
-* La interfaz puede mostrar información mínima para elegir el producto a modificar o eliminar; no equivale al módulo de consulta de v1.1.
+* La selección por código sirve únicamente para modificar o eliminar; no habilita consultas generales, filtros ni búsquedas avanzadas de v1.1.
 
 ## Verificación y automatización
 
-El sistema se verificará mediante pruebas basadas en los criterios de aceptación CA01–CA09, prestando especial atención a las validaciones y operaciones sobre productos inexistentes.
+Las pruebas automatizadas del controlador cubren CA01–CA12 y CA15 con datos tipados, estados iniciales independientes y comprobación de que los demás productos se conservan. CA13–CA14 se verifican manualmente en el formulario, porque comprueban la conversión de texto antes de invocar al controlador. La revisión manual también cubre los mensajes, el precio con coma o punto de CA01 y la selección por código. Se registran resultados y evidencias de CA01–CA15.
 
-Para la automatización se utilizará GitHub Actions con un ejecutor Windows, MSBuild para compilar la solución y un proyecto de pruebas automatizadas. El pipeline deberá indicar un error cuando falle la compilación o alguna prueba.
+GitHub Actions usará un ejecutor `windows-2022`: restaurar paquetes NuGet, compilar la solución en Release con MSBuild de Visual Studio y ejecutar la DLL de pruebas con `vstest.console.exe`, indicando la ruta del adaptador MSTest V2 restaurado. Se localizarán MSBuild y VSTest mediante la instalación de Visual Studio. Se guardarán resultados TRX como evidencia y el pipeline fallará si falla la compilación, alguna prueba o no se descubre ninguna prueba.
+
+Antes de compilar, comprobar la disponibilidad del targeting pack de .NET Framework 4.7.2 (ensamblados de referencia); si falta, instalar el Developer Pack 4.7.2 desde Microsoft y verificarlo de nuevo. El runtime por sí solo no basta. Aplicar la misma comprobación en Visual Studio local. La integración requiere pruebas automáticas aprobadas, revisión manual registrada y un Pull Request obligatorio.
 

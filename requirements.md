@@ -9,7 +9,7 @@ Una empresa de software necesita evitar pérdida de versiones, desorganización,
 ## Necesidades del usuario
 
 * **RF01.** Registrar productos con código, nombre, precio, cantidad inicial y stock mínimo.
-* **RF02.** Modificar los datos de un producto existente.
+* **RF02.** Modificar el nombre, precio, cantidad y stock mínimo de un producto existente, excepto su código, que no cambia en v1.0.
 * **RF03.** Eliminar un producto existente.
 
 ## Reglas de negocio
